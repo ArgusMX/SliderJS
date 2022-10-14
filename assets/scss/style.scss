@@ -1,12 +1,12 @@
-@import "normalize";
+@import 'normalize';
 
-@import "presets/skins";
-@import "presets/variables";
+@import 'presets/skins';
+@import 'presets/variables';
 
-@import "mixins/mixins-media";
+@import 'mixins/mixins-media';
 
-@import "common";
+@import 'common';
 
-@import "slider/slides";
-@import "slider/controls";
-@import "slider/indicators";
+@import 'slider/slides';
+@import 'slider/controls';
+@import 'slider/indicators';
