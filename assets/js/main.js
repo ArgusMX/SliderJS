@@ -89,28 +89,40 @@ Carousel.prototype = {
     if (e.code === this.CODE_RIGHT_ARROW) this._next();
     if (e.code === this.CODE_SPACE) this.pausePlay();
   },
-  
-  _swipeStart(e) {
-    this.swipeStartX = e.changedTouches[0].pageX;
-  },
-  
-  _swipeEnd(e) {
-    this.swipeEndX = e.changedTouches[0].pageX;
-    if (this.swipeStartX - this.swipeEndX > 100) this._next();
-    if (this.swipeStartX - this.swipeEndX < -100) this._prev(); 
-  },
-  
+
   _initListeners() {
     document.addEventListener('keydown', this._pressKey.bind(this));
     this.pauseBtn.addEventListener('click', this.pausePlay.bind(this));
     this.nextBtn.addEventListener('click', this._next.bind(this));
     this.prevBtn.addEventListener('click', this._prev.bind(this));
     this.indicatorsContainer.addEventListener('click', this._indicate.bind(this));
-    this.container.addEventListener('touchstart', this._swipeStart.bind(this));
-    this.container.addEventListener('touchend', this._swipeEnd.bind(this));
   }
 };
 
 Carousel.prototype.constructor = Carousel;
-const carousel = new Carousel();
+
+function SwipeCarousel() {
+  Carousel.apply(this, arguments)
+};
+
+SwipeCarousel.prototype = Object.create(Carousel.prototype);
+SwipeCarousel.prototype.constructor = SwipeCarousel;
+
+SwipeCarousel.prototype._swipeStart = function(e) {
+  this.swipeStartX = e.changedTouches[0].pageX;
+};
+
+SwipeCarousel.prototype._swipeEnd = function(e){
+  this.swipeEndX = e.changedTouches[0].pageX;
+  if (this.swipeStartX - this.swipeEndX > 100) this._next();
+  if (this.swipeStartX - this.swipeEndX < -100) this._prev(); 
+};
+
+SwipeCarousel.prototype._initListeners = function() {
+  Carousel.prototype._initListeners.apply(this);
+  this.container.addEventListener('touchstart', this._swipeStart.bind(this));
+  this.container.addEventListener('touchend', this._swipeEnd.bind(this));
+}
+
+const carousel = new SwipeCarousel();
 carousel.init();
