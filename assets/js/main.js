@@ -1,112 +1,116 @@
-(function (time){
+function Carousel () {
 
-  const container = document.querySelector('#carousel');
-  const slides = container.querySelectorAll('.slide');
-  const indicatorsContainer = container.querySelector('#indicators-container');
-  const indicators = indicatorsContainer.querySelectorAll('.indicator');
-  const prevBtn = container.querySelector('#prev');
-  const pauseBtn = container.querySelector('#pause');
-  const nextBtn = container.querySelector('#next');
+  this.container = document.querySelector('#carousel');
+  this.slides = this.container.querySelectorAll('.slide');
+  this.indicatorsContainer = this.container.querySelector('#indicators-container');
+  this.indicators = this.indicatorsContainer.querySelectorAll('.indicator');
+  this.prevBtn = this.container.querySelector('#prev');
+  this.pauseBtn = this.container.querySelector('#pause');
+  this.nextBtn = this.container.querySelector('#next');
   
-  const SLIDES_COUNT = slides.length; 
-  const CODE_LEFT_ARROW = 'ArrowLeft';
-  const CODE_RIGHT_ARROW = 'ArrowRight';
-  const CODE_SPACE = 'Space';
+  this.SLIDES_COUNT = this.slides.length; 
+  this.CODE_LEFT_ARROW = 'ArrowLeft';
+  this.CODE_RIGHT_ARROW = 'ArrowRight';
+  this.CODE_SPACE = 'Space';
+
+  this.interval = 2000;
+  this.isPlaying = true;
+  this.currentSlide = 0;
+}
+
+Carousel.prototype = {
+  pausePlay() {
+    if (this.isPlaying) this._pause();
+    else this._play();
+  },
+
+  init() {
+    this.timerID = setInterval(this._gotoNext.bind(this), this.interval);
+    this._initListeners();
+  },
+
+  _gotoNth(n){
+    this.slides[this.currentSlide].classList.toggle('active');
+    this.indicators[this.currentSlide].classList.toggle('active');
+    this.currentSlide = (n + this.SLIDES_COUNT) % this.SLIDES_COUNT;
+    this.slides[this.currentSlide].classList.toggle('active');
+    this.indicators[this.currentSlide].classList.toggle('active');
+
+    this.slides[this.currentSlide].classList.toggle('active');
+    this.indicators[this.currentSlide].classList.toggle('active');
+    this.currentSlide = (n + this.SLIDES_COUNT) % this.SLIDES_COUNT;
+    this.slides[this.currentSlide].classList.toggle('active');
+    this.indicators[this.currentSlide].classList.toggle('active');
+
+  },
   
-  let isPlaying = true;
-  let currentSlide = 0;
-  let timerID = null;
-  let swipeStartX = null;
-  let swipeEndX = null;
-  let interval = time;
+  _gotoPrev() {
+    this._gotoNth(this.currentSlide - 1);
+  },
   
-  function gotoNth(n){
-    slides[currentSlide].classList.toggle('active');
-    indicators[currentSlide].classList.toggle('active');
-    currentSlide = (n + SLIDES_COUNT) % SLIDES_COUNT;
-    slides[currentSlide].classList.toggle('active');
-    indicators[currentSlide].classList.toggle('active');
-  }
+  _gotoNext() {
+    this._gotoNth(this.currentSlide + 1);
+  },
   
-  function gotoPrev() {
-    gotoNth(currentSlide - 1);
-  }
+  _pause() {
+    this.isPlaying = false;
+    clearInterval(this.timerID);
+    this.pauseBtn.innerHTML = '<i class="fa-regular fa-circle-play"></i>';
+  },
   
-  function gotoNext() {
-    gotoNth(currentSlide + 1);
-  }
+  _play() {
+    this.timerID = setInterval(this._gotoNext.bind(this), this.interval);
+    this.isPlaying = true;
+    this.pauseBtn.innerHTML = '<i class="fa-regular fa-circle-pause"></i>';
+  },
   
-  function pause() {
-    isPlaying = false;
-    clearInterval(timerID);
-    pauseBtn.innerHTML = '<i class="fa-regular fa-circle-play"></i>';
-  }
+  _prev() {
+    this._gotoPrev();
+    this._pause();
+  },
   
-  function play() {
-    isPlaying = true;
-    timerID = setInterval(gotoNext, 2000);
-    pauseBtn.innerHTML = '<i class="fa-regular fa-circle-pause"></i>';
-  }
+  _next() {
+    this._gotoNext();
+    this._pause();
+  },
   
-  function pausePlay() {
-    if (isPlaying) {
-      pause();
-    } else {
-      play();
-    }
-  }
-  
-  function prev() {
-    gotoPrev();
-    pause();
-  }
-  
-  function next() {
-    gotoNext();
-    pause();
-  }
-  
-  function indicate(e) {
+  _indicate(e) {
     let target = e.target;
     if (target && target.classList.contains('indicator')) {
       const dataSlide = +target.dataset.slideTo;
       if (isNaN(dataSlide)) return
-      pause();
-      gotoNth(dataSlide);
+      this._pause();
+      this._gotoNth(dataSlide);
     }
-  }
+  },
   
-  function pressKey(e) {
-    if (e.code === CODE_LEFT_ARROW) prev();
-    if (e.code === CODE_RIGHT_ARROW) next();
-    if (e.code === CODE_SPACE) pausePlay();
-  }
+  _pressKey(e) {
+    if (e.code === this.CODE_LEFT_ARROW) this._prev();
+    if (e.code === this.CODE_RIGHT_ARROW) this._next();
+    if (e.code === this.CODE_SPACE) this.pausePlay();
+  },
   
-  function swipeStart(e) {
-    swipeStartX = e.changedTouches[0].pageX;
-  }
+  _swipeStart(e) {
+    this.swipeStartX = e.changedTouches[0].pageX;
+  },
   
-  function swipeEnd(e) {
-    swipeEndX = e.changedTouches[0].pageX;
-    if (swipeStartX - swipeEndX > 100) next();
-    if (swipeStartX - swipeEndX < -100) prev(); 
-  }
+  _swipeEnd(e) {
+    this.swipeEndX = e.changedTouches[0].pageX;
+    if (this.swipeStartX - this.swipeEndX > 100) this._next();
+    if (this.swipeStartX - this.swipeEndX < -100) this._prev(); 
+  },
   
-  function initListeners() {
-    pauseBtn.addEventListener('click', pausePlay);
-    nextBtn.addEventListener('click', next);
-    prevBtn.addEventListener('click', prev);
-    indicatorsContainer.addEventListener('click', indicate);
-    document.addEventListener('keydown', pressKey);
-    container.addEventListener('touchstart', swipeStart);
-    container.addEventListener('touchend', swipeEnd);
+  _initListeners() {
+    document.addEventListener('keydown', this._pressKey.bind(this));
+    this.pauseBtn.addEventListener('click', this.pausePlay.bind(this));
+    this.nextBtn.addEventListener('click', this._next.bind(this));
+    this.prevBtn.addEventListener('click', this._prev.bind(this));
+    this.indicatorsContainer.addEventListener('click', this._indicate.bind(this));
+    this.container.addEventListener('touchstart', this._swipeStart.bind(this));
+    this.container.addEventListener('touchend', this._swipeEnd.bind(this));
   }
-  
-  function init() {
-    timerID = setInterval(gotoNext, interval);
-    initListeners();
-  }
+};
 
-  init();
-
-}(2000));
+Carousel.prototype.constructor = Carousel;
+const carousel = new Carousel();
+carousel.init();
