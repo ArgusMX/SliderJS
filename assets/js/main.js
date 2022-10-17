@@ -35,13 +35,6 @@ Carousel.prototype = {
     this.currentSlide = (n + this.SLIDES_COUNT) % this.SLIDES_COUNT;
     this.slides[this.currentSlide].classList.toggle('active');
     this.indicators[this.currentSlide].classList.toggle('active');
-
-    this.slides[this.currentSlide].classList.toggle('active');
-    this.indicators[this.currentSlide].classList.toggle('active');
-    this.currentSlide = (n + this.SLIDES_COUNT) % this.SLIDES_COUNT;
-    this.slides[this.currentSlide].classList.toggle('active');
-    this.indicators[this.currentSlide].classList.toggle('active');
-
   },
   
   _gotoPrev() {
